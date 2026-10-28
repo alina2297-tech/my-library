@@ -185,10 +185,24 @@ a:focus-visible {
   list-style: none;
 }
 
+.layout--locations {
+  background: radial-gradient(120% 90% at 30% 35%, #99b5ce 0%, #91aec9 100%);
+}
+
+.main--flush {
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+
 @media (min-width: 720px) {
   .header,
   .main {
     padding-right: 1.5rem;
     padding-left: 1.5rem;
+  }
+
+  .main.main--flush {
+    padding: 0;
   }
 }

@@ -9,8 +9,7 @@ import type {
 /**
  * Пути заданы контрактом frontend. Сейчас backend монтирует те же операции на
  * `/api/storage` и не публикует `GET /:id/books`.
- * Метод с FormData подготовлен отдельно: в маршрутах Multer ещё не подключён,
- * а поле photo в базе — строка, а не файл.
+ * Метод с FormData шлёт поле `photo`; backend сохраняет файл и возвращает URL.
  */
 const STORAGE_LOCATIONS_PATH = '/api/storage'
 
@@ -74,6 +73,25 @@ function appendField(formData: FormData, key: string, value: string | undefined)
   }
 }
 
+function resolvePhotoUrl(photo: string | null | undefined): string | null {
+  if (photo === undefined || photo === null || photo.trim() === '') return null
+  if (photo.startsWith('http://') || photo.startsWith('https://')) return photo
+
+  const baseURL = normalizeApiBaseUrl(import.meta.env.VITE_API_BASE_URL)
+  const path = photo.startsWith('/') ? photo : `/${photo}`
+
+  return baseURL ? `${baseURL}${path}` : path
+}
+
+function normalizeApiBaseUrl(value: string | undefined): string | undefined {
+  if (!value) return undefined
+
+  const trimmed = value.trim()
+  if (!trimmed) return undefined
+
+  return trimmed.replace(/\/+$/, '')
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null
 }
@@ -117,7 +135,7 @@ function parseStorageLocation(value: unknown): StorageLocation {
     title: value.title,
     description: value.description ?? null,
     address: value.address ?? null,
-    photo: value.photo ?? null,
+    photo: resolvePhotoUrl(value.photo),
     createdAt: value.createdAt,
     updatedAt: value.updatedAt,
   }

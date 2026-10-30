@@ -1,3 +1,4 @@
+import { deleteStoragePhoto } from "../lib/storagePhotos";
 import { prisma } from "../lib/prisma";
 
 export const getStorageLocations = () => {
@@ -23,7 +24,7 @@ export const createStorageLocation = (data: {
   return prisma.storageLocation.create({ data });
 };
 
-export const updateStorageLocation = (
+export const updateStorageLocation = async (
   id: string,
   data: {
     title?: string;
@@ -32,14 +33,30 @@ export const updateStorageLocation = (
     photo?: string;
   }
 ) => {
-  return prisma.storageLocation.update({
+  const existing = await getStorageLocationById(id);
+  if (!existing) return null;
+
+  const location = await prisma.storageLocation.update({
     where: { id: parseInt(id, 10) },
     data,
   });
+
+  if (data.photo && existing.photo && existing.photo !== data.photo) {
+    await deleteStoragePhoto(existing.photo);
+  }
+
+  return location;
 };
 
-export const deleteStorageLocation = (id: string) => {
-  return prisma.storageLocation.delete({
+export const deleteStorageLocation = async (id: string) => {
+  const existing = await getStorageLocationById(id);
+  if (!existing) return null;
+
+  const location = await prisma.storageLocation.delete({
     where: { id: parseInt(id, 10) },
   });
+
+  await deleteStoragePhoto(existing.photo);
+
+  return location;
 };

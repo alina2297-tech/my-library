@@ -1,5 +1,6 @@
 import {
   createStorageLocation,
+  createStorageLocationWithPhoto,
   deleteStorageLocation,
   getBooksByStorageLocationId,
   getStorageLocationById,
@@ -100,11 +101,23 @@ export const useStorageLocationsStore = defineStore('storageLocations', () => {
     }
   }
 
-  async function createLocation(payload: CreateStorageLocationDto): Promise<StorageLocation> {
+  async function createLocation(
+    payload: CreateStorageLocationDto,
+    photo?: File,
+  ): Promise<StorageLocation> {
     error.value = null
 
     try {
-      const created = await createStorageLocation(payload)
+      const created = photo
+        ? await createStorageLocationWithPhoto(
+            {
+              title: payload.title,
+              description: payload.description,
+              address: payload.address,
+            },
+            photo,
+          )
+        : await createStorageLocation(payload)
       locations.value = [created, ...locations.value.filter((item) => item.id !== created.id)]
       return created
     } catch (err) {

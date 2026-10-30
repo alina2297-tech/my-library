@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import addIcon from '@/assets/add-storage-location.svg'
 import StorageLocationCard from '@/components/StorageLocationCard.vue'
+import StorageLocationModal from '@/modals/StorageLocationModal.vue'
 import { useStorageLocationsStore } from '@/stores/storageLocations.store'
 import { storeToRefs } from 'pinia'
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 
 const store = useStorageLocationsStore()
 const { locations, isLoading, error } = storeToRefs(store)
+const isModalOpen = ref(false)
 
 function loadLocations(): void {
   void store.fetchLocations()
@@ -25,7 +27,7 @@ onMounted(loadLocations)
           редактируйте и просматривайте информацию.
         </p>
       </div>
-      <button type="button" class="add">
+      <button type="button" class="add" @click="isModalOpen = true">
         <img class="add-icon" :src="addIcon" alt="" width="79" height="79" />
         <span class="add-label">Добавить место хранения</span>
       </button>
@@ -47,6 +49,8 @@ onMounted(loadLocations)
         <StorageLocationCard :location="location" />
       </li>
     </ul>
+
+    <StorageLocationModal v-model="isModalOpen" />
   </section>
 </template>
 

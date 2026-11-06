@@ -3,32 +3,39 @@ import multer, { MulterError } from "multer";
 import fs from "node:fs";
 import path from "node:path";
 import { randomUUID } from "node:crypto";
+import { BOOK_PHOTO_DIR } from "../lib/bookPhotos";
 import { STORAGE_PHOTO_DIR } from "../lib/storagePhotos";
 
 const ALLOWED_MIME_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
+const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
-fs.mkdirSync(STORAGE_PHOTO_DIR, { recursive: true });
+export const uploadStoragePhoto = createImageUpload(STORAGE_PHOTO_DIR);
+export const uploadBookPhoto = createImageUpload(BOOK_PHOTO_DIR);
 
-const storage = multer.diskStorage({
-  destination: STORAGE_PHOTO_DIR,
-  filename: (_req, file, cb) => {
-    const ext = path.extname(file.originalname).toLowerCase();
-    cb(null, `${randomUUID()}${ext}`);
-  },
-});
+function createImageUpload(destination: string) {
+  fs.mkdirSync(destination, { recursive: true });
 
-export const uploadStoragePhoto = multer({
-  storage,
-  limits: { fileSize: 5 * 1024 * 1024 },
-  fileFilter: (_req, file, cb) => {
-    if (ALLOWED_MIME_TYPES.has(file.mimetype)) {
-      cb(null, true);
-      return;
-    }
+  const storage = multer.diskStorage({
+    destination,
+    filename: (_req, file, cb) => {
+      const ext = path.extname(file.originalname).toLowerCase();
+      cb(null, `${randomUUID()}${ext}`);
+    },
+  });
 
-    cb(new Error("Only jpeg, png and webp images are allowed"));
-  },
-}).single("photo");
+  return multer({
+    storage,
+    limits: { fileSize: MAX_FILE_SIZE },
+    fileFilter: (_req, file, cb) => {
+      if (ALLOWED_MIME_TYPES.has(file.mimetype)) {
+        cb(null, true);
+        return;
+      }
+
+      cb(new Error("Only jpeg, png and webp images are allowed"));
+    },
+  }).single("photo");
+}
 
 export function handleUploadError(
   error: unknown,

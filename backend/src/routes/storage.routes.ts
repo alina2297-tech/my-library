@@ -1,10 +1,12 @@
 import { Router } from "express";
+import * as bookController from "../controllers/book.controller";
 import * as storageController from "../controllers/storage.controller";
 import { uploadStoragePhoto } from "../middleware/upload";
 
 const router = Router();
 
 router.get("/", storageController.getStorageLocations);
+router.get("/:id/books", bookController.getBooksByStorageLocationId);
 router.get("/:id", storageController.getStorageLocationById);
 router.post("/", uploadStoragePhoto, storageController.createStorageLocation);
 router.put("/:id", uploadStoragePhoto, storageController.updateStorageLocation);

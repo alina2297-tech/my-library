@@ -27,6 +27,7 @@ model Book {
   id     Int     @id @default(autoincrement())
   title  String
   author String?
+  photo  String?
 
   storageLocationId Int?
   storageLocation   StorageLocation? @relation(fields: [storageLocationId], references: [id], onDelete: SetNull)

@@ -7,8 +7,8 @@ import type {
 } from '@/types/storageLocation'
 
 /**
- * Пути заданы контрактом frontend. Сейчас backend монтирует те же операции на
- * `/api/storage` и не публикует `GET /:id/books`.
+ * Пути заданы контрактом frontend. Места хранения — `/api/storage`,
+ * книги места — `GET /api/storage/:id/books`.
  * Метод с FormData шлёт поле `photo`; backend сохраняет файл и возвращает URL.
  */
 const STORAGE_LOCATIONS_PATH = '/api/storage'
